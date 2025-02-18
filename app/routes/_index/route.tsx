@@ -1,11 +1,31 @@
 import type { MetaFunction } from '@remix-run/node';
-import { Display, Body } from '@sumup-oss/circuit-ui';
+import { Body, Display, ListItem } from '@sumup-oss/circuit-ui';
+import { useLoaderData } from '@remix-run/react';
 
 import { DocCard } from '../../components/DocCard/index.js';
 
 import styles from './route.module.css';
 
-const title = 'Welcome to Circuit UI + Remix';
+type Expense = {
+  id: string;
+  description: string;
+  amount: number;
+  category: string;
+};
+
+type ExpensesResult = {
+  data: Expense[];
+};
+
+export const loader = async () => {
+  // eslint-disable-next-line compat/compat
+  const expenses = await fetch(`${process.env.BACKEND_URL}/expenses`, {
+    method: 'GET',
+  });
+  return expenses;
+};
+
+const title = 'Welcome to Expense Management';
 
 export const meta: MetaFunction = () => [
   { title },
@@ -16,6 +36,9 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Index() {
+  const apiResult: ExpensesResult = useLoaderData();
+  const data = apiResult?.data || [];
+
   return (
     <>
       <Display as="h1" size="m">
@@ -23,26 +46,24 @@ export default function Index() {
       </Display>
 
       <Body size="l" className={styles.intro}>
-        Get started by editing <code>app/routes/_index/route.tsx</code>
+        {data && data.length > 0
+          ? data.map((exp) => (
+              <ListItem
+                key={exp.id}
+                title={exp.category}
+                label={exp.description}
+                trailingLabel={exp.amount}
+                details={exp.category}
+              />
+            ))
+          : null}
       </Body>
-
       <div className={styles.cards}>
         <DocCard
-          title="Remix"
-          description="Find in-depth information about Remix features and API."
-          href="https://remix.run/docs"
-        />
-
-        <DocCard
-          title="Circuit UI"
-          description="Discover SumUp's design system for the web."
-          href="https://circuit.sumup.com"
-        />
-
-        <DocCard
-          title="Foundry"
-          description="Learn about SumUp's toolkit for building TypeScript applications."
-          href="https://github.com/sumup-oss/foundry"
+          title="Add expense"
+          description=""
+          target="_self"
+          href="add-expense"
         />
       </div>
     </>
