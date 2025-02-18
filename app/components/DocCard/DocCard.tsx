@@ -7,16 +7,17 @@ export interface DocCardProps {
   title: string;
   description: string;
   href: string;
+  target: string;
 }
 
-export function DocCard({ title, description, href }: DocCardProps) {
+export function DocCard({ title, description, href, target }: DocCardProps) {
   const descriptionId = useId();
   return (
     <Card>
       <Headline as="h2" className={styles.title}>
         <a
           href={href}
-          target="_blank"
+          target={target || '_blank'}
           aria-describedby={descriptionId}
           rel="noreferrer"
         >
